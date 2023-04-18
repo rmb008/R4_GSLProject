@@ -7,7 +7,8 @@ Packages used so far:
 - numpy
 - scipy
 - sklearn
-
+- seaborn
+- mpl_toolkits.mplot3d
 
 Correct environment.yml file should contain the GSL-env environment and should
 successfully load all of the packages listed above.
