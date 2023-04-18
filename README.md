@@ -7,3 +7,7 @@ Packages used so far:
 - numpy
 - scipy
 - sklearn
+
+
+Correct environment.yml file should contain the GSL-env environment and should
+successfully load all of the packages listed above.
