@@ -60,7 +60,7 @@ lmdata = lmdata.reset_index()
 
 # drop extra index column from re-indexing
 lmdata = lmdata.drop(labels="index", axis=1)
-print(lmdata)
+#print(lmdata)
 
 # assign predictor (X) and response (Y) variables for regression - note that X is an array
 X = lmdata[["SALINITY (%)", "TEMPERATURE (C) "]]
@@ -69,20 +69,21 @@ Y = lmdata["CHLOROPHYTES (ug/l)"]
 # log transform the chlorophytes variable since it has a lot of small values near 0
 Y = np.log(Y) # note that this is the natural log
 
-# code needed for 3D plot #TODO: adjust to our data
-x = X[:, 0]
-y = X[:, 1]
+# code needed for 3D plot
+x = X["SALINITY (%)"]
+y = X["TEMPERATURE (C) "]
 z = Y
 
-x_pred = np.linspace(6, 24, 30)   # range of porosity values
-y_pred = np.linspace(0, 100, 30)  # range of brittleness values
+x_pred = np.linspace(np.min(x), np.max(x), np.size(x))   # range of salinity values
+y_pred = np.linspace(np.min(y), np.max(y), np.size(y))  # range of temp values
 xx_pred, yy_pred = np.meshgrid(x_pred, y_pred)
 model_viz = np.array([xx_pred.flatten(), yy_pred.flatten()]).T
 
 # run the regression using sklearn
 regr = linear_model.LinearRegression()
 model = regr.fit(X, Y)
-fitted = model.predict(X) # these are the chlorophyte values predicted from/fitted to the regression model
+fitted = model.predict(model_viz) # using code to visualize 3D plot (as opposed to below)
+#fitted = model.predict(X) # these are the chlorophyte values predicted from/fitted to the regression model
 #print(fitted) #TODO: deal with negative fitted values (the ones that are negative without the log transform)
 
 # print parameters/coefficients
@@ -101,14 +102,14 @@ fitted = model.predict(X) # these are the chlorophyte values predicted from/fitt
 #plt.show()
 
 # plot X vs fitted
-plt.scatter(X["SALINITY (%)"], fitted)
-plt.show()
-plt.scatter(X["TEMPERATURE (C) "], fitted)
-plt.show()
+#plt.scatter(X["SALINITY (%)"], fitted)
+#plt.show()
+#plt.scatter(X["TEMPERATURE (C) "], fitted)
+#plt.show()
 
 # plot actual vs fitted #TODO: fit a nonparametric line to this
-plt.scatter(Y, fitted)
-plt.show()
+#plt.scatter(Y, fitted)
+#plt.show()
 
 # plot temp vs salinity (proxy test for correlation, official correlation test coming) - almost linear: PROBLEM but only for inference (not prediction)
 #plt.scatter(X["SALINITY (%)"], X["TEMPERATURE (C) "])
