@@ -70,9 +70,10 @@ dependencies:
   - numexpr=2.8.4=mkl_py311h9a3bfb6_0
   - numpy=1.24.2=py311h0b4df5a_0
   - openjpeg=2.5.0=ha2aaf27_2
-  - openssl=3.1.0=hcfcfb64_0
+  - openssl=3.1.0=hcfcfb64_2
   - packaging=23.1=pyhd8ed1ab_0
   - pandas=1.5.3=py311heda8569_0
+  - patsy=0.5.3=py311haa95532_0
   - pcre2=10.37=h0ff8eda_1
   - pillow=9.5.0=py311hc67b2de_0
   - pip=23.1=pyhd8ed1ab_0
@@ -99,6 +100,7 @@ dependencies:
   - setuptools=67.6.1=pyhd8ed1ab_0
   - sip=6.7.8=py311h12c1d0e_0
   - six=1.16.0=pyhd3eb1b0_1
+  - statsmodels=0.13.5=py311h2bbff1b_1
   - tbb=2021.9.0=h91493d7_0
   - threadpoolctl=3.1.0=pyh8a188c0_0
   - tk=8.6.12=h8ffe710_0
