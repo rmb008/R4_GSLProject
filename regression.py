@@ -181,7 +181,203 @@ plt.xlabel("Salinity (% NaCl)")
 plt.ylabel("Temperature ($^\circ$C)")
 plt.show()
 
-# Rachel, want to add your code here?
+######################
+#Imports
+import seaborn as sns
+from matplotlib import font_manager
+from mpl_toolkits.mplot3d import Axes3D   
+
+#Set Seaborn theme
+sns.set(style = "whitegrid")
+sns.set_theme(context='notebook', style='darkgrid', palette='viridis', font_scale=1, color_codes=True, rc=None)
+#Font setting
+flist = font_manager.get_font_names()
+#print(flist) 
+font = font_manager.FontProperties(family = 'Trebuchet MS')
+file = font_manager.findfont(font)
+prop = font_manager.FontProperties(fname = file)
+sns.set(font = prop.get_name())
+
+
+#########################
+# MLR 3D plot - single
+#########################
+def mlrplot_single(x, y, z, xx_pred, yy_pred, fit_data):
+    fig = plt.figure(figsize = (12, 10))
+    seaborn_plot = plt.axes(projection='3d')
+    print(type(seaborn_plot))
+    seaborn_plot.scatter3D(x, y, z, s = 150, c = 'teal', depthshade = True, edgecolor = 'black')
+   
+    seaborn_plot.scatter(xx_pred.flatten(), 
+                yy_pred.flatten(), 
+                fit_data, 
+                facecolor = 'grey', 
+                s = 15, 
+                edgecolor='white', 
+                alpha = .25)
+    seaborn_plot.set_xlabel('Salinity (% NaCl)', fontsize=18, labelpad=15)
+    seaborn_plot.set_ylabel('Temperature (C)', fontsize=18, labelpad=15)
+    seaborn_plot.set_zlabel('Chlorophytes (ug/L)', fontsize=18, labelpad=15)
+    seaborn_plot.locator_params(nbins = 9, axis='x')
+    seaborn_plot.locator_params(nbins = 9, axis='y')
+    seaborn_plot.locator_params(nbins = 9, axis='z')
+    fig.suptitle('Multiple Linear Regression 3D Plot \n $R^2 = %.2f$' % r2, fontsize=22)
+    fig.tight_layout()
+ #   fig.update_layout(margin=dict(l=5, r=5, b=5, t=5))
+    fig.show()    
+
+    return
+#######################################
+
+#########################
+# MLR 3D plot - multiple
+#########################
+def mlrplot(x, y, z, xx_pred, yy_pred, fit_data):
+    print(plt.style.available)
+    plt.style.use('default')
+    
+    fig = plt.figure(figsize=(20, 6))
+    ax1 = fig.add_subplot(131, projection='3d')
+    ax2 = fig.add_subplot(132, projection='3d')
+    ax3 = fig.add_subplot(133, projection='3d')
+    axes = [ax1, ax2, ax3]
+    for ax in axes:
+        ax.plot(x, y, z, 
+                color='red', 
+                zorder=15, 
+                linestyle='none', 
+                marker='o', 
+                alpha=0.8)
+        ax.scatter(xx_pred.flatten(), 
+                   yy_pred.flatten(), 
+                   fit_data, 
+                   facecolor = 'grey', 
+                   s = 10, 
+                   edgecolor='white', 
+                   alpha = .3)
+        ax.set_xlabel('Salinity (% NaCl)', fontsize=12)
+        ax.set_ylabel('Temperature (C)', fontsize=12)
+        ax.set_zlabel('Chlorophytes (ug/L)', fontsize=12)
+        ax.locator_params(nbins=4, axis='x')
+        ax.locator_params(nbins=5, axis='x')
+        #ax.invert_xaxis()
+        #ax.invert_yaxis()
+       # ax.invert_zaxis()
+       # plt.ylim(max(y), min(y))
+    ax1.view_init(elev=28, azim=120)
+    ax2.view_init(elev=0, azim=90)
+    ax3.view_init(elev=60, azim=165)
+    fig.suptitle('$R^2 = %.2f$' % r2, fontsize=22)
+    fig.tight_layout()
+    fig.show()
+    return
+
+#############################################
+x = X["SALINITY (%)"]
+y = X["TEMPERATURE (C) "]
+z = Y
+#salinity range
+x_pred = np.linspace(np.min(x), np.max(x), np.size(x))
+#temperature range
+y_pred = np.linspace(np.min(y), np.max(y), np.size(y))
+
+xx_pred, yy_pred = np.meshgrid(x_pred, y_pred)
+model_viz = np.array([xx_pred.flatten(), yy_pred.flatten()]).T
+
+regr = linear_model.LinearRegression()
+model = regr.fit(X, Y)
+fitted2 = model.predict(model_viz) 
+r2 = model.score(X, Y)
+
+#run single mlr plot
+mlrplot_single(x, y, z, xx_pred, yy_pred, fit_data = fitted2)
+#run multiple mlr plot
+mlrplot(x, y, z, xx_pred, yy_pred, fit_data = fitted2)
+
+
+#################################################################
+
+################################################
+### Histograms ###
+################################################
+
+sns.set_style('whitegrid')
+plt.style.use('seaborn-v0_8-whitegrid')
+
+#Data to pandas dataframe
+xdf = pd.DataFrame(X)
+ydf = pd.DataFrame(Y)
+xydf = pd.concat([xdf, ydf], axis=1)
+
+#Single
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf, 
+             x = "SALINITY (%)", 
+             kde = True, 
+             color = 'b')
+plt.title("")
+fig.suptitle('Salinity', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf, 
+             x = "TEMPERATURE (C) ", 
+             kde = True, 
+             color = 'r')
+plt.title("")
+fig.suptitle('Temperature', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf, 
+             x = "CHLOROPHYTES (ug/l)", 
+             kde = True,
+             color = 'g')
+plt.title("")
+fig.suptitle('Chlorophyta', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+
+########################
+#Overlay
+fig = plt.figure(figsize=(10, 4))
+sns.histplot(data = xydf, kde = True)
+fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
+plt.title('Overlay', fontsize = 18)
+fig.tight_layout()
+plt.show()
+
+#####
+fig, axes = plt.subplots(1, 3, figsize = (10,6))
+fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
+sns.histplot(data = xydf, 
+             x = "SALINITY (%)", 
+             kde = True, 
+             ax = axes[0], 
+             color = 'b')
+sns.histplot(data = xydf, 
+             x = "TEMPERATURE (C) ", 
+             kde = True, 
+             ax = axes[1], 
+             color = 'r')
+sns.histplot(data = xydf, 
+             x = "CHLOROPHYTES (ug/l)", 
+             kde = True, 
+             ax = axes[2], 
+             color = 'g')
+axes[0].set_title('Salinity', fontsize = 18)
+axes[1].set_title('Temperature', fontsize = 18)
+axes[2].set_title('Chlorophyta', fontsize = 18)
+plt.show()
+
+
+
+
+
 
 ##############################################################################
 # NOTE: ZIP model begins here!
