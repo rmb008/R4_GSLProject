@@ -2,7 +2,9 @@
 # multiple linear regression and zero inflated Poisson regression with temp,
 # salinity as predictors and micrograms of Chlorophytes per L as the response.
 
+# Import packages
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 import scipy as sp
 import numpy as np
 import pandas as pd
@@ -53,6 +55,79 @@ lmdata["CHLOROPHYTES (ug/l)"] = lmdata["CHLOROPHYTES (ug/l)"].astype(float)
 # note that X is an array
 X = lmdata[["SALINITY (%)", "TEMPERATURE (C) "]]
 Y = lmdata["CHLOROPHYTES (ug/l)"]
+
+# produce histograms for chlorophyte concentration, temp, and salinity
+sns.set_style('whitegrid')
+plt.style.use('seaborn-v0_8-whitegrid')
+
+# Data to pandas dataframe
+xdf = pd.DataFrame(X)
+ydf = pd.DataFrame(Y)
+xydf = pd.concat([xdf, ydf], axis=1)
+
+# Salinity histogram
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf,
+             x = "SALINITY (%)",
+             kde = True,
+             color = 'b')
+plt.title("")
+fig.suptitle('Salinity', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+# Temperature histogram
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf,
+             x = "TEMPERATURE (C) ",
+             kde = True,
+             color = 'r')
+plt.title("")
+fig.suptitle('Temperature', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+# Chlorophyte concentration histogram
+fig = plt.figure(figsize=(5, 4))
+sns.histplot(data = xydf,
+             x = "CHLOROPHYTES (ug/l)",
+             kde = True,
+             color = 'g')
+plt.title("")
+fig.suptitle('Chlorophyta', fontsize = 22)
+fig.tight_layout()
+plt.show()
+
+# Overlay with all histograms together
+fig = plt.figure(figsize=(10, 4))
+sns.histplot(data = xydf, kde = True)
+fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
+plt.title('Overlay', fontsize = 18)
+fig.tight_layout()
+plt.show()
+
+# Subplots of all histograms
+fig, axes = plt.subplots(1, 3, figsize = (10,6))
+fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
+sns.histplot(data = xydf,
+             x = "SALINITY (%)",
+             kde = True,
+             ax = axes[0],
+             color = 'b')
+sns.histplot(data = xydf,
+             x = "TEMPERATURE (C) ",
+             kde = True,
+             ax = axes[1],
+             color = 'r')
+sns.histplot(data = xydf,
+             x = "CHLOROPHYTES (ug/l)",
+             kde = True,
+             ax = axes[2],
+             color = 'g')
+axes[0].set_title('Salinity', fontsize = 18)
+axes[1].set_title('Temperature', fontsize = 18)
+axes[2].set_title('Chlorophyta', fontsize = 18)
+plt.show()
 
 # set seed to control for randomness
 random.seed(7)
@@ -172,7 +247,7 @@ plt.xlabel("Actual Chlorophyte Concentration ($\mu$g/L)")
 plt.ylabel("Fitted Chlorophyte Concentration ($\mu$g/L)")
 plt.show()
 
-# plot temp vs salinity
+# plot temp vs salinity (linear fit does not work here)
 m, n = np.polyfit(X["SALINITY (%)"], X["TEMPERATURE (C) "], 1)
 plt.scatter(X["SALINITY (%)"], X["TEMPERATURE (C) "])
 plt.plot(X["SALINITY (%)"], m*X["SALINITY (%)"]+n)
@@ -181,83 +256,79 @@ plt.xlabel("Salinity (% NaCl)")
 plt.ylabel("Temperature ($^\circ$C)")
 plt.show()
 
-######################
-#Imports
-import seaborn as sns
-from matplotlib import font_manager
-from mpl_toolkits.mplot3d import Axes3D   
-
-#Set Seaborn theme
+# prepare for 3D plotting of MLR model
+# Set Seaborn theme
 sns.set(style = "whitegrid")
-sns.set_theme(context='notebook', style='darkgrid', palette='viridis', font_scale=1, color_codes=True, rc=None)
-#Font setting
+sns.set_theme(context='notebook', style='darkgrid', palette='viridis',
+              font_scale=1, color_codes=True, rc=None)
+# Font setting
 flist = font_manager.get_font_names()
-#print(flist) 
+# print(flist)
 font = font_manager.FontProperties(family = 'Trebuchet MS')
 file = font_manager.findfont(font)
 prop = font_manager.FontProperties(fname = file)
 sns.set(font = prop.get_name())
 
-
-#########################
-# MLR 3D plot - single
-#########################
+# function to make MLR 3D plot - single plot, this is the plot that you
+# can rotate
 def mlrplot_single(x, y, z, xx_pred, yy_pred, fit_data):
     fig = plt.figure(figsize = (12, 10))
     seaborn_plot = plt.axes(projection='3d')
     print(type(seaborn_plot))
-    seaborn_plot.scatter3D(x, y, z, s = 150, c = 'teal', depthshade = True, edgecolor = 'black')
-   
-    seaborn_plot.scatter(xx_pred.flatten(), 
-                yy_pred.flatten(), 
-                fit_data, 
-                facecolor = 'grey', 
-                s = 15, 
-                edgecolor='white', 
+    seaborn_plot.scatter3D(x, y, z, s = 150, c = 'teal', depthshade = True,
+                           edgecolor = 'black')
+
+    seaborn_plot.scatter(xx_pred.flatten(),
+                yy_pred.flatten(),
+                fit_data,
+                facecolor = 'grey',
+                s = 15,
+                edgecolor='white',
                 alpha = .25)
     seaborn_plot.set_xlabel('Salinity (% NaCl)', fontsize=18, labelpad=15)
-    seaborn_plot.set_ylabel('Temperature (C)', fontsize=18, labelpad=15)
-    seaborn_plot.set_zlabel('Chlorophytes (ug/L)', fontsize=18, labelpad=15)
+    seaborn_plot.set_ylabel('Temperature ($^\circ$C)', fontsize=18,
+                            labelpad=15)
+    seaborn_plot.set_zlabel('Chlorophytes ($\mu$g/L)', fontsize=18,
+                            labelpad=15)
     seaborn_plot.locator_params(nbins = 9, axis='x')
     seaborn_plot.locator_params(nbins = 9, axis='y')
     seaborn_plot.locator_params(nbins = 9, axis='z')
-    fig.suptitle('Multiple Linear Regression 3D Plot \n $R^2 = %.2f$' % r2, fontsize=22)
+    fig.suptitle('Multiple Linear Regression 3D Plot \n $R^2 = %.2f$' % r2,
+                 fontsize=22)
     fig.tight_layout()
  #   fig.update_layout(margin=dict(l=5, r=5, b=5, t=5))
-    fig.show()    
+    fig.show()
 
     return
-#######################################
 
-#########################
-# MLR 3D plot - multiple
-#########################
+# function to make MLR 3D plot - multiple plots (view 3D plot from multiple
+# angles)
 def mlrplot(x, y, z, xx_pred, yy_pred, fit_data):
     print(plt.style.available)
     plt.style.use('default')
-    
+
     fig = plt.figure(figsize=(20, 6))
     ax1 = fig.add_subplot(131, projection='3d')
     ax2 = fig.add_subplot(132, projection='3d')
     ax3 = fig.add_subplot(133, projection='3d')
     axes = [ax1, ax2, ax3]
     for ax in axes:
-        ax.plot(x, y, z, 
-                color='red', 
-                zorder=15, 
-                linestyle='none', 
-                marker='o', 
+        ax.plot(x, y, z,
+                color='red',
+                zorder=15,
+                linestyle='none',
+                marker='o',
                 alpha=0.8)
-        ax.scatter(xx_pred.flatten(), 
-                   yy_pred.flatten(), 
-                   fit_data, 
-                   facecolor = 'grey', 
-                   s = 10, 
-                   edgecolor='white', 
+        ax.scatter(xx_pred.flatten(),
+                   yy_pred.flatten(),
+                   fit_data,
+                   facecolor = 'grey',
+                   s = 10,
+                   edgecolor='white',
                    alpha = .3)
         ax.set_xlabel('Salinity (% NaCl)', fontsize=12)
-        ax.set_ylabel('Temperature (C)', fontsize=12)
-        ax.set_zlabel('Chlorophytes (ug/L)', fontsize=12)
+        ax.set_ylabel('Temperature ($^\circ$C)', fontsize=12)
+        ax.set_zlabel('Chlorophytes ($\mu$g/L)', fontsize=12)
         ax.locator_params(nbins=4, axis='x')
         ax.locator_params(nbins=5, axis='x')
         #ax.invert_xaxis()
@@ -272,13 +343,13 @@ def mlrplot(x, y, z, xx_pred, yy_pred, fit_data):
     fig.show()
     return
 
-#############################################
+# re-run MLR to generate plots
 x = X["SALINITY (%)"]
 y = X["TEMPERATURE (C) "]
 z = Y
-#salinity range
+# salinity range
 x_pred = np.linspace(np.min(x), np.max(x), np.size(x))
-#temperature range
+# temperature range
 y_pred = np.linspace(np.min(y), np.max(y), np.size(y))
 
 xx_pred, yy_pred = np.meshgrid(x_pred, y_pred)
@@ -286,98 +357,13 @@ model_viz = np.array([xx_pred.flatten(), yy_pred.flatten()]).T
 
 regr = linear_model.LinearRegression()
 model = regr.fit(X, Y)
-fitted2 = model.predict(model_viz) 
+fitted2 = model.predict(model_viz)
 r2 = model.score(X, Y)
 
-#run single mlr plot
+# run function to make single (rotating) mlr plot
 mlrplot_single(x, y, z, xx_pred, yy_pred, fit_data = fitted2)
-#run multiple mlr plot
+# run function to make multiple mlr plots
 mlrplot(x, y, z, xx_pred, yy_pred, fit_data = fitted2)
-
-
-#################################################################
-
-################################################
-### Histograms ###
-################################################
-
-sns.set_style('whitegrid')
-plt.style.use('seaborn-v0_8-whitegrid')
-
-#Data to pandas dataframe
-xdf = pd.DataFrame(X)
-ydf = pd.DataFrame(Y)
-xydf = pd.concat([xdf, ydf], axis=1)
-
-#Single
-fig = plt.figure(figsize=(5, 4))
-sns.histplot(data = xydf, 
-             x = "SALINITY (%)", 
-             kde = True, 
-             color = 'b')
-plt.title("")
-fig.suptitle('Salinity', fontsize = 22)
-fig.tight_layout()
-plt.show()
-
-fig = plt.figure(figsize=(5, 4))
-sns.histplot(data = xydf, 
-             x = "TEMPERATURE (C) ", 
-             kde = True, 
-             color = 'r')
-plt.title("")
-fig.suptitle('Temperature', fontsize = 22)
-fig.tight_layout()
-plt.show()
-
-
-fig = plt.figure(figsize=(5, 4))
-sns.histplot(data = xydf, 
-             x = "CHLOROPHYTES (ug/l)", 
-             kde = True,
-             color = 'g')
-plt.title("")
-fig.suptitle('Chlorophyta', fontsize = 22)
-fig.tight_layout()
-plt.show()
-
-
-########################
-#Overlay
-fig = plt.figure(figsize=(10, 4))
-sns.histplot(data = xydf, kde = True)
-fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
-plt.title('Overlay', fontsize = 18)
-fig.tight_layout()
-plt.show()
-
-#####
-fig, axes = plt.subplots(1, 3, figsize = (10,6))
-fig.suptitle('Salinity, Temperature, and Chlorophyta Histograms', fontsize = 22)
-sns.histplot(data = xydf, 
-             x = "SALINITY (%)", 
-             kde = True, 
-             ax = axes[0], 
-             color = 'b')
-sns.histplot(data = xydf, 
-             x = "TEMPERATURE (C) ", 
-             kde = True, 
-             ax = axes[1], 
-             color = 'r')
-sns.histplot(data = xydf, 
-             x = "CHLOROPHYTES (ug/l)", 
-             kde = True, 
-             ax = axes[2], 
-             color = 'g')
-axes[0].set_title('Salinity', fontsize = 18)
-axes[1].set_title('Temperature', fontsize = 18)
-axes[2].set_title('Chlorophyta', fontsize = 18)
-plt.show()
-
-
-
-
-
 
 ##############################################################################
 # NOTE: ZIP model begins here!
@@ -399,7 +385,7 @@ print('ZIP RMSE='+str(np.sqrt(np.sum(np.power(np.subtract(
                                               predicted_counts,
                                               actual_counts), 2)))))
 
-# prediction plot 1
+# prediction plot 1 (with indices on x axis)
 fig = plt.figure()
 fig.suptitle('Predicted vs. Actual Chlorophyte Concentrations')
 predicted, = plt.plot(X_test.index, predicted_counts, 'go-',
