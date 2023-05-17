@@ -43,7 +43,7 @@ histograms, and finally implements and produces results and plots for both the m
 There is one more useful point regarding the ``regression.py`` script. Specifically, the multiple linear regression model uses both the full dataset and the training/testing datasets, depending on the context. 
 If the goal is to calculate prediction error or generate predictions, the user should comment out Lines 161 and 163 and uncomment Lines 160 and 162 to run the linear regression model using the training set.
 Then the user can uncomment Lines 168-172 to make a prediction for what happens to chlorophyte concentration when temperature reaches 28.5 degrees Celsius and when salinity reaches 23.5%. Note that any temperature and salinity values can
-be used here, but Dunaliella do not survive beyond 40 degrees Celsius and 30% salinity, so increasing beyond these values is not meaningful. Furthermore, the user can uncomment Lines 201-208 to calculate the 
+be used here, but Dunaliella do not survive beyond 45 degrees Celsius and 30% salinity, so increasing beyond these values is not meaningful. Furthermore, the user can uncomment Lines 201-208 to calculate the 
 root mean squared prediction error for the linear model. Note that all of the output plots and results (except predictions and prediction error) for the linear model are generated using the whole dataset
 rather than the training set. In contrast, the zero-inflated Poisson model is trained directly on the training set. If the user uncomments Lines 413-416, they will produce the prediction from the Poisson model
 for chlorophyte concentration for when temperature is 28.5 degrees Celsius and salinity is 30%.
